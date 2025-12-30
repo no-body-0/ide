@@ -1,38 +1,45 @@
-const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-  mode: "python",
-  lineNumbers: true
-});
+document.addEventListener("DOMContentLoaded", () => {
 
-const terminal = document.getElementById("terminal");
-const input = document.getElementById("hiddenInput");
+  const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
+    mode: "python",
+    lineNumbers: true
+  });
 
-let ws;
+  const terminal = document.getElementById("terminal");
+  const input = document.getElementById("hiddenInput");
 
-function runCode() {
-  terminal.textContent = "";
-  input.value = "";
-  input.focus();
+  let ws = null;
 
-  ws = new WebSocket("wss://ide-ezt1.onrender.com/ws/run");
-
-  ws.onopen = () => {
-    ws.send(editor.getValue());
-  };
-
-  ws.onmessage = (e) => {
-    terminal.textContent += e.data;
-    terminal.scrollTop = terminal.scrollHeight;
-  };
-}
-
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const value = input.value;
-    terminal.textContent += value + "\n";
-    ws.send(value);
+  window.runCode = function () {
+    terminal.textContent = "";
     input.value = "";
-  }
-});
+    input.focus();
 
-terminal.addEventListener("click", () => input.focus());
+    ws = new WebSocket("wss://ide-ezt1.onrender.com/ws/run");
+
+    ws.onopen = () => {
+      ws.send(editor.getValue());
+    };
+
+    ws.onmessage = (e) => {
+      terminal.textContent += e.data;
+      terminal.scrollTop = terminal.scrollHeight;
+    };
+
+    ws.onerror = () => {
+      terminal.textContent += "\n[WebSocket error]\n";
+    };
+  };
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && ws && ws.readyState === 1) {
+      e.preventDefault();
+      terminal.textContent += input.value + "\n";
+      ws.send(input.value);
+      input.value = "";
+    }
+  });
+
+  terminal.addEventListener("click", () => input.focus());
+
+});
