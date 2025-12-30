@@ -7,34 +7,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const terminal = document.getElementById("terminal");
   const input = document.getElementById("hiddenInput");
+  const cursor = document.getElementById("cursor");
 
   let ws = null;
 
+  function write(text) {
+    cursor.remove();
+    terminal.textContent += text;
+    terminal.appendChild(cursor);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
   window.runCode = function () {
     terminal.textContent = "";
+    terminal.appendChild(cursor);
     input.value = "";
     input.focus();
 
     ws = new WebSocket("wss://ide-ezt1.onrender.com/ws/run");
 
-    ws.onopen = () => {
-      ws.send(editor.getValue());
-    };
+    ws.onopen = () => ws.send(editor.getValue());
 
-    ws.onmessage = (e) => {
-      terminal.textContent += e.data;
-      terminal.scrollTop = terminal.scrollHeight;
-    };
+    ws.onmessage = (e) => write(e.data);
 
-    ws.onerror = () => {
-      terminal.textContent += "\n[WebSocket error]\n";
-    };
+    ws.onerror = () => write("\n[WebSocket error]\n");
   };
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && ws && ws.readyState === 1) {
       e.preventDefault();
-      terminal.textContent += input.value + "\n";
+      write(input.value + "\n");
       ws.send(input.value);
       input.value = "";
     }
