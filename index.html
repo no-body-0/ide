@@ -8,10 +8,23 @@
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5/mode/python/python.js"></script>
 
   <style>
-    body { background:#0f172a; color:#fff; font-family:monospace; }
-    button { padding:8px 15px; margin-top:10px; }
-    pre { background:#000; padding:10px; min-height:120px; }
-    input { width:100%; padding:8px; margin-top:5px; }
+    body { background:#0f172a; color:white; font-family:monospace; }
+    button { padding:8px 16px; margin:10px 0; }
+
+    #terminal {
+      background:black;
+      color:#00ff00;
+      padding:10px;
+      height:250px;
+      overflow-y:auto;
+      white-space:pre-wrap;
+      cursor:text;
+    }
+
+    #hiddenInput {
+      position:absolute;
+      opacity:0;
+    }
   </style>
 </head>
 <body>
@@ -25,12 +38,9 @@ print(name, age)</textarea>
 <br>
 <button onclick="runCode()">Run</button>
 
-<h3>Input</h3>
-<input id="stdin" placeholder="Enter input and press Send">
-<button onclick="sendInput()">Send</button>
-
-<h3>Output</h3>
-<pre id="output"></pre>
+<h3>Terminal</h3>
+<pre id="terminal"></pre>
+<input id="hiddenInput" autocomplete="off">
 
 <script src="script.js"></script>
 </body>
