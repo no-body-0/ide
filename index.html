@@ -19,12 +19,24 @@
       overflow-y:auto;
       white-space:pre-wrap;
       cursor:text;
+      <pre id="terminal"><span id="cursor">█</span></pre>
+      <input id="hiddenInput" autocomplete="off">
     }
 
     #hiddenInput {
       position:absolute;
       opacity:0;
     }
+    #cursor {
+      display: inline-block;
+      width: 10px;
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+@keyframes blink {
+  to { visibility: hidden; }
+}
+
   </style>
 </head>
 <body>
