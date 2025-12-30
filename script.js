@@ -12,36 +12,31 @@ document.addEventListener("DOMContentLoaded", () => {
   let ws = null;
 
   function clearTerminal() {
+    // Only append cursor if it exists
     terminal.innerHTML = "";
-    terminal.appendChild(cursor);
+    if (cursor) terminal.appendChild(cursor);
   }
 
   function write(text) {
+    if (!cursor) return;  // safety
     cursor.remove();
     terminal.insertAdjacentText("beforeend", text);
     terminal.appendChild(cursor);
     terminal.scrollTop = terminal.scrollHeight;
   }
 
-  // Expose runCode globally
   window.runCode = function () {
     clearTerminal();
     input.value = "";
     input.focus();
 
-    ws = new WebSocket("wss://ide-ezt1.onrender.com.com/ws/run");
+    ws = new WebSocket("wss://ide-ezt1.onrender.com/ws/run");
 
-    ws.onopen = () => {
-      ws.send(editor.getValue());
-    };
+    ws.onopen = () => ws.send(editor.getValue());
 
-    ws.onmessage = (e) => {
-      write(e.data);
-    };
+    ws.onmessage = (e) => write(e.data);
 
-    ws.onerror = () => {
-      write("\n[WebSocket error]\n");
-    };
+    ws.onerror = () => write("\n[WebSocket error]\n");
   };
 
   input.addEventListener("keydown", (e) => {
@@ -55,4 +50,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   terminal.addEventListener("click", () => input.focus());
 
-}); // <-- closing DOMContentLoaded
+});
