@@ -1,33 +1,38 @@
 const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
   mode: "python",
-  lineNumbers: true,
-  theme: "default"
+  lineNumbers: true
 });
+
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("hiddenInput");
 
 let ws;
 
 function runCode() {
-  document.getElementById("output").textContent = "";
+  terminal.textContent = "";
+  input.value = "";
+  input.focus();
 
   ws = new WebSocket("wss://ide-ezt1.onrender.com/ws/run");
 
   ws.onopen = () => {
-    ws.send(editor.getValue()); // send code first
+    ws.send(editor.getValue());
   };
 
   ws.onmessage = (e) => {
-    document.getElementById("output").textContent += e.data;
-  };
-
-  ws.onerror = () => {
-    document.getElementById("output").textContent = "WebSocket error";
+    terminal.textContent += e.data;
+    terminal.scrollTop = terminal.scrollHeight;
   };
 }
 
-function sendInput() {
-  const input = document.getElementById("stdin").value;
-  if (ws && ws.readyState === 1) {
-    ws.send(input);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const value = input.value;
+    terminal.textContent += value + "\n";
+    ws.send(value);
+    input.value = "";
   }
-  document.getElementById("stdin").value = "";
-}
+});
+
+terminal.addEventListener("click", () => input.focus());
