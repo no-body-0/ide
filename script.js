@@ -9,7 +9,7 @@ let ws;
 function runCode() {
   document.getElementById("output").textContent = "";
 
-  ws = new WebSocket("wss://YOUR-BACKEND.onrender.com/ws/run");
+  ws = new WebSocket("wss://ide-ezt1.onrender.com/ws/run");
 
   ws.onopen = () => {
     ws.send(editor.getValue()); // send code first
